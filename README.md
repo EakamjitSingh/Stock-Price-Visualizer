@@ -1,151 +1,63 @@
-#!/bin/bash
+Stock Analysis Toolkit - Bash Launcher
+This document provides instructions for run_analysis.sh, a user-friendly Bash script designed to launch the stock_toolkit.py Python application.
 
-# ==============================================================================
-# Bash Launcher for the Advanced Stock Analysis Toolkit
-#
-# This script provides a user-friendly menu to run the Python analysis tool
-# without needing to remember command-line arguments.
-# ==============================================================================
+🚀 What is run_analysis.sh?
+The run_analysis.sh script acts as an interactive wrapper for the main Python tool. Instead of requiring you to type complex commands with arguments, it provides a simple, numbered menu to guide you through the available analyses.
 
-# --- Configuration ---
-PYTHON_SCRIPT="stock_toolkit.py"
-REQUIREMENTS_FILE="requirements.txt"
-VENV_DIR="venv"
+Key advantages:
 
-# --- Helper Functions ---
+User-Friendly: No need to remember specific command-line flags (--analysis, --start, etc.).
 
-# Function to print a formatted header
-print_header() {
-    echo "==============================================="
-    echo "    Advanced Stock Analysis Toolkit Launcher   "
-    echo "==============================================="
-    echo
-}
+Guided Workflow: Prompts you for the exact information needed for each analysis type.
 
-# Function to check if a command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
+Environment Setup: Includes a built-in option to set up the necessary Python virtual environment and install dependencies automatically.
 
-# --- Core Functions ---
+🛠️ How to Use
+Follow these steps to use the launcher. These only need to be done once.
 
-# Function to set up the Python environment
-setup_environment() {
-    echo "[*] Setting up the environment..."
+Step 1: Place Files Together
+Ensure that run_analysis.sh, stock_toolkit.py, and requirements.txt are all in the same folder.
 
-    # Check for Python
-    if ! command_exists python; then
-        echo "❌ Error: Python is not installed or not in the system's PATH."
-        exit 1
-    fi
+Step 2: Make the Script Executable
+Before you can run the script for the first time, you must give it "execute" permissions. Open your terminal in the project folder and run the following command:
 
-    # Check for requirements file
-    if [ ! -f "$REQUIREMENTS_FILE" ]; then
-        echo "❌ Error: '$REQUIREMENTS_FILE' not found. Please create it first."
-        exit 1
-    fi
+chmod +x run_analysis.sh
 
-    # Create virtual environment
-    if [ ! -d "$VENV_DIR" ]; then
-        echo "[*] Creating Python virtual environment in './$VENV_DIR'..."
-        python -m venv "$VENV_DIR"
-    else
-        echo "[*] Virtual environment already exists."
-    fi
+Step 3: Run the Launcher
+Now, you can start the interactive menu at any time by running this command:
 
-    # Activate virtual environment and install dependencies
-    echo "[*] Installing dependencies from '$REQUIREMENTS_FILE'..."
-    source "$VENV_DIR/bin/activate"
-    pip install -r "$REQUIREMENTS_FILE"
+./run_analysis.sh
 
-    echo
-    echo "✅ Setup complete. You can now run the analysis options."
-    deactivate
-    echo
-}
+Step 4: Set Up the Environment
+When you run the launcher for the first time, select Option 4: Setup Environment. This will create a local Python environment and install all the required libraries. You only need to do this once.
 
-# Function to run the Python script with the correct arguments
-run_analysis() {
-    if [ ! -d "$VENV_DIR" ]; then
-        echo "⚠️ Warning: Environment not set up. Please run 'Setup Environment' first."
-        return
-    fi
+📈 Menu Options Explained
+Once the launcher is running, you will see the main menu:
 
-    # Activate the virtual environment to run the script
-    source "$VENV_DIR/bin/activate"
-    echo "[*] Running: python $PYTHON_SCRIPT $@"
-    echo "-----------------------------------------------"
-    python "$PYTHON_SCRIPT" "$@"
-    echo "-----------------------------------------------"
-    deactivate
-}
+Full Analysis (Price, MAs, Volume, RSI)
 
-# --- Main Menu ---
+What it does: Generates a detailed, 3-panel chart for each ticker you enter.
 
-main_menu() {
-    while true; do
-        print_header
-        echo "Select an analysis to perform:"
-        echo "  1) Full Analysis (Price, MAs, Volume, RSI)"
-        echo "  2) Performance Comparison"
-        echo "  3) Correlation Heatmap"
-        echo "  4) Setup Environment (Run this first!)"
-        echo "  5) Exit"
-        echo
-        read -p "Enter your choice [1-5]: " choice
+It will ask for: Tickers, start/end dates, and which moving averages to plot.
 
-        case $choice in
-            1)
-                read -p "Enter stock tickers (comma-separated, e.g., AAPL,MSFT): " tickers
-                read -p "Enter start date (YYYY-MM-DD, press Enter for last year): " start_date
-                read -p "Enter end date (YYYY-MM-DD, press Enter for today): " end_date
-                read -p "Enter Moving Averages (comma-separated, e.g., 50,200): " ma_windows
+Performance Comparison
 
-                # Build arguments, handling empty inputs
-                args=("$tickers" --analysis full)
-                [ -n "$start_date" ] && args+=("--start" "$start_date")
-                [ -n "$end_date" ] && args+=("--end" "$end_date")
-                [ -n "$ma_windows" ] && args+=("--ma" "$ma_windows")
-                
-                run_analysis "${args[@]}"
-                ;;
-            2)
-                read -p "Enter stock tickers (comma-separated, e.g., AAPL,MSFT): " tickers
-                read -p "Enter start date (YYYY-MM-DD, press Enter for last year): " start_date
-                read -p "Enter end date (YYYY-MM-DD, press Enter for today): " end_date
+What it does: Creates a single line chart comparing the percentage growth of multiple stocks over time.
 
-                args=("$tickers" --analysis compare)
-                [ -n "$start_date" ] && args+=("--start" "$start_date")
-                [ -n "$end_date" ] && args+=("--end" "$end_date")
+It will ask for: Tickers and the start/end dates for the comparison.
 
-                run_analysis "${args[@]}"
-                ;;
-            3)
-                read -p "Enter stock tickers (comma-separated, e.g., AAPL,MSFT): " tickers
-                read -p "Enter start date (YYYY-MM-DD, press Enter for last year): " start_date
-                read -p "Enter end date (YYYY-MM-DD, press Enter for today): " end_date
+Correlation Heatmap
 
-                args=("$tickers" --analysis corr)
-                [ -n "$start_date" ] && args+=("--start" "$start_date")
-                [ -n "$end_date" ] && args+=("--end" "$end_date")
+What it does: Generates a heatmap showing how closely the prices of different stocks move together.
 
-                run_analysis "${args[@]}"
-                ;;
-            4)
-                setup_environment
-                ;;
-            5)
-                echo "Exiting toolkit. Goodbye!"
-                exit 0
-                ;;
-            *)
-                echo "❌ Invalid choice. Please select a number from 1 to 5."
-                ;;
-        esac
-        read -p "Press Enter to return to the menu..."
-    done
-}
+It will ask for: Tickers and the start/end dates for the analysis.
 
-# --- Script Entry Point ---
-main_menu
+Setup Environment (Run this first!)
 
+What it does: Prepares your project by creating a Python virtual environment and installing the libraries from requirements.txt.
+
+When to use: Run this once before performing any analysis.
+
+Exit
+
+What it does: Safely closes the launcher script.
