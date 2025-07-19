@@ -1,63 +1,86 @@
-Stock Analysis Toolkit - Bash Launcher
-This document provides instructions for run_analysis.sh, a user-friendly Bash script designed to launch the stock_toolkit.py Python application.
+Advanced Stock Analysis Toolkit
+stock_toolkit.py is a powerful command-line tool for fetching, analyzing, and visualizing historical stock market data. It leverages the yfinance library to pull data from Yahoo Finance and uses pandas for analysis and matplotlib/seaborn for plotting.
 
-🚀 What is run_analysis.sh?
-The run_analysis.sh script acts as an interactive wrapper for the main Python tool. Instead of requiring you to type complex commands with arguments, it provides a simple, numbered menu to guide you through the available analyses.
+Features
+Comprehensive Single-Stock Analysis: Generate a detailed chart for a single stock, including its closing price, multiple Simple Moving Averages (SMAs), trading volume, and the Relative Strength Index (RSI).
 
-Key advantages:
+Multi-Stock Performance Comparison: Normalize the prices of multiple stocks to a starting value of 100 and plot their performance over time to easily compare them.
 
-User-Friendly: No need to remember specific command-line flags (--analysis, --start, etc.).
+Correlation Analysis: Calculate and visualize the correlation between the closing prices of multiple stocks in an easy-to-read heatmap.
 
-Guided Workflow: Prompts you for the exact information needed for each analysis type.
+Customizable Timeframes: Specify any start and end date for your analysis.
 
-Environment Setup: Includes a built-in option to set up the necessary Python virtual environment and install dependencies automatically.
+Flexible Inputs: Pass tickers, timeframes, and analysis types directly through the command line.
 
-🛠️ How to Use
-Follow these steps to use the launcher. These only need to be done once.
+Prerequisites
+Before running the script, you need to have Python 3 installed. You will also need to install several Python libraries.
 
-Step 1: Place Files Together
-Ensure that run_analysis.sh, stock_toolkit.py, and requirements.txt are all in the same folder.
+Installation
+You can install all the necessary libraries using pip. Open your terminal and run the following command:
 
-Step 2: Make the Script Executable
-Before you can run the script for the first time, you must give it "execute" permissions. Open your terminal in the project folder and run the following command:
+pip install pandas numpy yfinance matplotlib seaborn
 
-chmod +x run_analysis.sh
+Usage
+The script is run from the terminal. The basic structure of the command is:
 
-Step 3: Run the Launcher
-Now, you can start the interactive menu at any time by running this command:
+python stock_toolkit.py <TICKERS> --analysis <ANALYSIS_TYPE> [OPTIONS]
 
-./run_analysis.sh
+Below are detailed examples for each type of analysis.
 
-Step 4: Set Up the Environment
-When you run the launcher for the first time, select Option 4: Setup Environment. This will create a local Python environment and install all the required libraries. You only need to do this once.
+1. Full Analysis (Default)
+This is the default mode. It generates a detailed 3-panel plot for each specified ticker, showing Price/SMAs, Volume, and RSI.
 
-📈 Menu Options Explained
-Once the launcher is running, you will see the main menu:
+Command:
 
-Full Analysis (Price, MAs, Volume, RSI)
+python stock_toolkit.py <TICKERS> --analysis full
 
-What it does: Generates a detailed, 3-panel chart for each ticker you enter.
+Examples:
 
-It will ask for: Tickers, start/end dates, and which moving averages to plot.
+Analyze a single stock (e.g., Apple Inc.) for the past year:
 
-Performance Comparison
+python stock_toolkit.py AAPL
 
-What it does: Creates a single line chart comparing the percentage growth of multiple stocks over time.
+Analyze multiple stocks (e.g., Tesla, NVIDIA) with custom SMAs (20-day and 50-day):
 
-It will ask for: Tickers and the start/end dates for the comparison.
+python stock_toolkit.py TSLA,NVDA --ma 20,50
 
-Correlation Heatmap
+Analyze a stock for a specific timeframe (e.g., Microsoft during 2023):
 
-What it does: Generates a heatmap showing how closely the prices of different stocks move together.
+python stock_toolkit.py MSFT --start 2023-01-01 --end 2023-12-31
 
-It will ask for: Tickers and the start/end dates for the analysis.
+2. Performance Comparison
+This mode is used to compare the performance of multiple stocks over the same period. It normalizes their prices to a starting value of 100.
 
-Setup Environment (Run this first!)
+Command:
 
-What it does: Prepares your project by creating a Python virtual environment and installing the libraries from requirements.txt.
+python stock_toolkit.py <TICKERS> --analysis compare
 
-When to use: Run this once before performing any analysis.
+Example:
 
-Exit
+Compare the performance of major tech stocks (Meta, Amazon, Netflix, Google) over the last two years:
 
-What it does: Safely closes the launcher script.
+python stock_toolkit.py META,AMZN,NFLX,GOOGL --start 2023-07-19 --end 2025-07-19 --analysis compare
+
+3. Correlation Heatmap
+This mode calculates the correlation between the closing prices of two or more stocks and displays it as a heatmap. A value of 1 means perfect positive correlation, while -1 means perfect negative correlation.
+
+Command:
+
+python stock_toolkit.py <TICKERS> --analysis corr
+
+Example:
+
+Analyze the correlation between a tech company (AAPL), a financial institution (JPM), and an energy company (XOM):
+
+python stock_toolkit.py AAPL,JPM,XOM --analysis corr
+
+Code Structure
+The script is organized into four logical modules:
+
+Data Fetcher (fetch_stock_data): Handles all API requests to Yahoo Finance. It is responsible for downloading the raw OHLCV (Open, High, Low, Close, Volume) data.
+
+Analysis (calculate_* functions): Contains the logic for all financial calculations, such as Simple Moving Averages, RSI, performance normalization, and correlation matrices.
+
+Plotting (plot_* functions): Manages the creation of all visualizations using Matplotlib and Seaborn, ensuring the output is clear and informative.
+
+Main (main): The entry point of the script. It uses argparse to handle command-line arguments and orchestrates the calls to the other modules based on user input.
